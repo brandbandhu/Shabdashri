@@ -2,10 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { X, AlertTriangle, CheckCircle2, MessageCircle, Clock, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { QRCodeSVG } from "qrcode.react";
 import type { Product } from "@/data/products";
+import upiQrCode from "@/assets/upi_v.jpeg";
 import {
-  generateUPIPaymentString,
   generateUPIDeeplink,
   generateGPayDeeplink,
   generatePhonePeDeeplink,
@@ -64,14 +63,6 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
 
     return () => clearInterval(timer);
   }, [isOpen, isTimerComplete, timeRemaining]);
-
-  // Generate UPI payment string and QR code data
-  // Must be called before early return to follow Rules of Hooks
-  const upiPaymentString = useMemo(() => {
-    if (!product) return "";
-    const transactionNote = formatTransactionNote(product.title);
-    return generateUPIPaymentString(product.price, transactionNote);
-  }, [product?.price, product?.title]);
 
   const upiDeeplink = useMemo(() => {
     if (!product) return "";
@@ -189,12 +180,10 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
               Scan QR Code to Pay
             </h3>
             <div className="bg-card p-4 rounded-xl inline-block border-2 border-primary/20">
-              <QRCodeSVG
-                value={upiPaymentString}
-                size={192}
-                level="H"
-                includeMargin={true}
-                className="mx-auto"
+              <img
+                src={upiQrCode}
+                alt="UPI QR Code"
+                className="w-48 h-48 mx-auto object-contain"
               />
             </div>
             <p className="mt-3 text-lg font-bold text-primary">
