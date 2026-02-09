@@ -145,7 +145,7 @@ export default function Home() {
               Browse our collection, pay ₹50 via UPI, and receive your design file on WhatsApp instantly!
             </p>
             <a
-              href="https://wa.me/917775025777"
+              href="https://wa.me/918767980311"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block mt-8"

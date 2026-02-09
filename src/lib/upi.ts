@@ -3,7 +3,7 @@
  * Generates UPI payment strings and deep links for dynamic QR codes
  */
 
-const UPI_ID = import.meta.env.VITE_UPI_ID || "";
+const UPI_ID = import.meta.env.VITE_UPI_ID || "vaishnavipawar5050@okicici";
 const MERCHANT_NAME = import.meta.env.VITE_MERCHANT_NAME || "Shabdashri";
 
 /**
@@ -23,7 +23,7 @@ export function generateUPIPaymentString(
 
   // Encode parameters
   const params = new URLSearchParams({
-    pa: UPI_ID || "placeholder@upi",
+    pa: UPI_ID || "vaishnavipawar5050@okicici",
     pn: MERCHANT_NAME,
     am: formattedAmount,
     cu: "INR",
@@ -62,8 +62,8 @@ export function generateGPayDeeplink(
 
   // Encode parameters
   const params = new URLSearchParams({
-    pa: UPI_ID || "vaishnavipawar5050@okicici",
-    pn: MERCHANT_NAME + "Vaishnavi Pawar",
+    pa: UPI_ID,
+    pn: MERCHANT_NAME,
     am: formattedAmount,
     cu: "INR",
     tn: transactionNote,
@@ -90,8 +90,8 @@ export function generatePhonePeDeeplink(
 
   // Encode parameters
   const params = new URLSearchParams({
-    pa: UPI_ID || "vaishnavipawar5050@okicici",
-    pn: MERCHANT_NAME + "Vaishnavi Pawar",
+    pa: UPI_ID,
+    pn: MERCHANT_NAME,
     am: formattedAmount,
     cu: "INR",
     tn: transactionNote,
@@ -111,7 +111,7 @@ export function formatTransactionNote(productTitle: string): string {
  * Get UPI ID (for display purposes)
  */
 export function getUPIId(): string {
-  return UPI_ID || "Not configured";
+  return UPI_ID || "vaishnavipawar5050@okicici";
 }
 
 /**
