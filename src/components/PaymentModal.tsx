@@ -26,25 +26,44 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
   const [timeRemaining, setTimeRemaining] = useState(TIMER_DURATION);
   const [isTimerComplete, setIsTimerComplete] = useState(false);
 
-  // Timer effect
+  // Reset all state when modal opens
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // Reset all state when modal opens
+      setIsConfirmed(false);
+      setShowError(false);
       setTimeRemaining(TIMER_DURATION);
       setIsTimerComplete(false);
+      console.log("Payment modal opened - state reset");
+    }
+  }, [isOpen]);
+
+  // Timer countdown effect - separate from reset logic
+  useEffect(() => {
+    if (!isOpen || isTimerComplete) {
       return;
     }
 
     if (timeRemaining <= 0) {
       setIsTimerComplete(true);
+      console.log("Timer completed - checkbox available");
       return;
     }
 
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => prev - 1);
+      setTimeRemaining((prev) => {
+        const newValue = prev - 1;
+        if (newValue <= 0) {
+          setIsTimerComplete(true);
+          console.log("Timer completed - checkbox available");
+          return 0;
+        }
+        return newValue;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isOpen, timeRemaining]);
+  }, [isOpen, isTimerComplete, timeRemaining]);
 
   // Generate UPI payment string and QR code data
   // Must be called before early return to follow Rules of Hooks
@@ -87,10 +106,13 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
   };
 
   const handleWhatsAppClick = () => {
+    // Safety check - button should be disabled, but keep as fallback
     if (!isConfirmed) {
+      console.warn("WhatsApp clicked without confirmation");
       setShowError(true);
       return;
     }
+    console.log("Opening WhatsApp with payment confirmation");
     const message = encodeURIComponent(
       `Hi, I have paid ₹${product.price} for PSD design: ${product.title}. Please share the file.`
     );
@@ -98,6 +120,24 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
     onClose();
     setIsConfirmed(false);
     setShowError(false);
+  };
+
+  // Determine helper text and button text based on state
+  const getWhatsAppHelperText = () => {
+    if (!isTimerComplete) {
+      return "Please complete payment first";
+    }
+    if (!isConfirmed) {
+      return "Please confirm payment above to enable WhatsApp";
+    }
+    return "Payment confirmed! Click to send confirmation";
+  };
+
+  const getWhatsAppButtonText = () => {
+    if (!isConfirmed) {
+      return "Complete payment first";
+    }
+    return "Send Payment Confirmation on WhatsApp";
   };
 
   const handleClose = () => {
@@ -221,8 +261,10 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
                 <Checkbox
                   checked={isConfirmed}
                   onCheckedChange={(checked) => {
-                    setIsConfirmed(checked as boolean);
-                    if (checked) setShowError(false);
+                    const newValue = checked as boolean;
+                    setIsConfirmed(newValue);
+                    console.log("Payment confirmation changed:", newValue);
+                    if (newValue) setShowError(false);
                   }}
                   className="mt-0.5"
                 />
@@ -240,15 +282,33 @@ export function PaymentModal({ product, isOpen, onClose }: PaymentModalProps) {
             )}
           </div>
 
-          {/* WhatsApp Button */}
-          <Button
-            className="w-full gap-2 h-12 text-base"
-            onClick={handleWhatsAppClick}
-            disabled={!isConfirmed}
-          >
-            <MessageCircle className="h-5 w-5" />
-            Send Payment Confirmation on WhatsApp
-          </Button>
+          {/* WhatsApp Button Section */}
+          <div className="space-y-2">
+            {/* Helper Text */}
+            <div className="text-center">
+              <p
+                className={`text-sm font-medium ${
+                  isConfirmed
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {getWhatsAppHelperText()}
+              </p>
+            </div>
+
+            {/* WhatsApp Button */}
+            <Button
+              className={`w-full gap-2 h-12 text-base transition-all ${
+                !isConfirmed ? "opacity-50" : "opacity-100"
+              }`}
+              onClick={handleWhatsAppClick}
+              disabled={!isConfirmed}
+            >
+              <MessageCircle className="h-5 w-5" />
+              {getWhatsAppButtonText()}
+            </Button>
+          </div>
 
           <p className="text-center text-xs text-muted-foreground">
             By clicking above, you agree to our terms and conditions
